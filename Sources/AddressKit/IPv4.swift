@@ -107,10 +107,27 @@ public struct AddressV4:Address {
 	}
 }
 
-public struct RangeV4 {
+public struct RangeV4:Range {
+	public var string:String {
+		get {
+			return self.lower.string + "-" + self.upper.string
+		}
+	}
+	
 	public let lower:AddressV4
 	public let upper:AddressV4
 	public let count:UInt32
+	
+	public init?(_ rangeString:String) {
+		let splitData = rangeString.split(separator:"-", omittingEmptySubsequences:true)
+		guard splitData.count == 2, splitData[0].count > 0, splitData[1].count > 0 else {
+			return nil
+		}
+		guard let lower = AddressV4(String(splitData[0])), let upper = AddressV4(String(splitData[1])) else {
+			return nil
+		}
+		self = RangeV4(lower:lower, upper:upper)
+	}
 	
 	public init(lower:AddressV4, upper:AddressV4) {
 		guard lower <= upper else {
@@ -134,17 +151,16 @@ public struct RangeV4 {
 	}
 }
 
-public struct NetworkV4 {
+public struct NetworkV4:Network {
+	public var cidrString:String {
+		get {
+			return self.address.string + "/" + String(prefix)
+		}
+	}
 	public let address:AddressV4
 	public let netmask:AddressV4
 	public let prefix:UInt8
 	public let range:RangeV4
-
-	public var cidrString:String {
-		get { 
-			return range.lower.string + "/" + String(prefix)
-		}
-	}
 	
 	//ipv4 specifics
 	public let usableRange:RangeV4
