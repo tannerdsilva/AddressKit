@@ -131,11 +131,28 @@ public struct AddressV6:Address {
 	}
 }
 
-public struct RangeV6 {
+public struct RangeV6:Range {
+	public var string:String {
+		get {
+			return self.lower.string + "-" + self.upper.string
+		}
+	}
+	
 	public let lower:AddressV6
 	public let upper:AddressV6
 	public let count:BigUInt
 	
+	public init?(_ rangeString:String) {
+		let splitData = rangeString.split(separator:"-", omittingEmptySubsequences:true)
+		guard splitData.count == 2, splitData[0].count > 0, splitData[1].count > 0 else {
+			return nil
+		}
+		guard let lower = AddressV6(String(splitData[0])), let upper = AddressV6(String(splitData[1])) else {
+			return nil
+		}
+		self = RangeV6(lower:lower, upper:upper)
+	}
+
 	public init(lower:AddressV6, upper:AddressV6) {
 		guard lower <= upper else {
 			fatalError("lower is greater than upper")
@@ -158,7 +175,12 @@ public struct RangeV6 {
 	}
 }
 
-public struct NetworkV6 {
+public struct NetworkV6:Network {
+	public var cidrString:String {
+		get {
+			return self.address.string + "/" + String(prefix)
+		}
+	}
 	public let address:AddressV6
 	public let netmask:AddressV6
 	public let prefix:UInt8
