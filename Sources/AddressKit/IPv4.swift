@@ -10,19 +10,19 @@ fileprivate let PRIVATE_RANGES = [
 
 fileprivate let RESERVED_RANGES = PRIVATE_RANGES + [
 	NetworkV4(cidr:"192.0.2.0/24")!,
-    NetworkV4(cidr:"198.51.100.0/24")!,
-    NetworkV4(cidr:"203.0.113.0/24")!,
-    NetworkV4(cidr:"233.252.0.0/24")!,
-    NetworkV4(cidr:"127.0.0.0/8")!,
-    NetworkV4(cidr:"192.88.99.0/24")!,
-    NetworkV4(cidr:"224.0.0.0/4")!,
-    NetworkV4(cidr:"240.0.0.0/4")!,
-    NetworkV4(cidr:"100.64.0.0/10")!,
-    NetworkV4(cidr:"192.0.0.0/24")!,
-    NetworkV4(cidr:"198.18.0.0/15")!,
-    NetworkV4(cidr:"0.0.0.0/8")!,
-    NetworkV4(cidr:"169.254.0.0/16")!,
-    NetworkV4(cidr:"255.255.255.255/32")!
+	NetworkV4(cidr:"198.51.100.0/24")!,
+	NetworkV4(cidr:"203.0.113.0/24")!,
+	NetworkV4(cidr:"233.252.0.0/24")!,
+	NetworkV4(cidr:"127.0.0.0/8")!,
+	NetworkV4(cidr:"192.88.99.0/24")!,
+	NetworkV4(cidr:"224.0.0.0/4")!,
+	NetworkV4(cidr:"240.0.0.0/4")!,
+	NetworkV4(cidr:"100.64.0.0/10")!,
+	NetworkV4(cidr:"192.0.0.0/24")!,
+	NetworkV4(cidr:"198.18.0.0/15")!,
+	NetworkV4(cidr:"0.0.0.0/8")!,
+	NetworkV4(cidr:"169.254.0.0/16")!,
+	NetworkV4(cidr:"255.255.255.255/32")!
 ]
 
 public struct AddressV4:Address {
@@ -148,6 +148,14 @@ public struct RangeV4:Range {
 	public func randomAddress() -> AddressV4 {
 		let randomIncrementFromBase = UInt32.random(in:0..<count)
 		return AddressV4(lower.integer + randomIncrementFromBase)
+	}
+	
+	public func overlapsWith(_ range:RangeV4) -> Bool {
+		if (range.lower < self.lower && range.upper < self.lower) || (range.upper > self.upper && range.lower > self.upper) {
+			return false
+		} else {
+			return true
+		}
 	}
 }
 
@@ -364,6 +372,14 @@ public struct NetworkV4:Network {
 			return true
 		} else {
 			return false
+		}
+	}
+
+	public func overlapsWith(_ network:NetworkV4) -> Bool {
+		if (network.range.lower < self.range.lower && network.range.upper < self.range.lower) || (network.range.upper > self.range.upper && network.range.lower > self.range.upper) {
+			return false
+		} else {
+			return true
 		}
 	}
 }

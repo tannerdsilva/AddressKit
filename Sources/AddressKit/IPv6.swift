@@ -173,6 +173,15 @@ public struct RangeV6:Range {
 		let randomIncrementFromBase = BigUInt.randomInteger(lessThan:count)
 		return AddressV6(lower.integer + randomIncrementFromBase)
 	}
+	
+	public func overlapsWith(_ range:RangeV6) -> Bool {
+		if (range.lower < self.lower && range.upper < self.lower) || (range.upper > self.upper && range.lower > self.upper) {
+			return false
+		} else {
+			return true
+		}
+	}
+
 }
 
 public struct NetworkV6:Network {
@@ -750,6 +759,14 @@ public struct NetworkV6:Network {
 			return true
 		} else {
 			return false
+		}
+	}
+	
+	public func overlapsWith(_ network:NetworkV6) -> Bool {
+		if (network.range.lower < self.range.lower && network.range.upper < self.range.lower) || (network.range.upper > self.range.upper && network.range.lower > self.range.upper) {
+			return false
+		} else {
+			return true
 		}
 	}
 }
