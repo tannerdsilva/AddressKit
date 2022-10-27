@@ -25,12 +25,18 @@ fileprivate let RESERVED_RANGES = PRIVATE_RANGES + [
 	NetworkV4(cidr:"255.255.255.255/32")!
 ]
 
-public struct AddressV4:Address {
+public struct AddressV4:Address, LosslessStringConvertible {
 	public let integer:UInt32
 	
 	public var string:String {
 		get {
 			return String((self.integer >> 24) & 0xFF) + "." + String((self.integer >> 16) & 0xFF) + "." + String((self.integer >> 8) & 0xFF) + "." + String(self.integer & 0xFF)
+		}
+	}
+	
+	public var description:String {
+		get {
+			return self.string
 		}
 	}
 	
@@ -107,10 +113,16 @@ public struct AddressV4:Address {
 	}
 }
 
-public struct RangeV4:Range {
+public struct RangeV4:Range, LosslessStringConvertible {
 	public var string:String {
 		get {
 			return self.lower.string + "-" + self.upper.string
+		}
+	}
+	
+	public var description:String {
+		get {
+			return self.string
 		}
 	}
 	
@@ -159,12 +171,19 @@ public struct RangeV4:Range {
 	}
 }
 
-public struct NetworkV4:Network {
+public struct NetworkV4:Network, LosslessStringConvertible {
 	public var cidrString:String {
 		get {
 			return self.address.string + "/" + String(prefix)
 		}
 	}
+	
+	public var description:String {
+		get {
+			return self.cidrString
+		}
+	}
+	
 	public let address:AddressV4
 	public let netmask:AddressV4
 	public let prefix:UInt8
@@ -173,6 +192,10 @@ public struct NetworkV4:Network {
 	//ipv4 specifics
 	public let usableRange:RangeV4
 	public let broadcast:AddressV4?
+	
+	public init?(_ description:String) {
+		self.init(cidr:description)
+	}
 	
 	public init?(cidr cidrV4:String) {
 		let cidrSplit = cidrV4.split(separator:"/").compactMap { String($0) }

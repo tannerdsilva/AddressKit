@@ -22,7 +22,7 @@ fileprivate let RESERVED_RANGES = [
 	NetworkV6(cidr:"ff00::/8")!
 ]
 
-public struct AddressV6:Address {
+public struct AddressV6:Address, LosslessStringConvertible {
 	public let integer:BigUInt
 	public var string:String {
 		get {
@@ -36,6 +36,12 @@ public struct AddressV6:Address {
 			let eight = String(self.integer & 0xFFFF, radix:16)
 		
 			return one + two + three + four + five + six + seven + eight
+		}
+	}
+	
+	public var description:String {
+		get {
+			return self.string
 		}
 	}
 
@@ -131,10 +137,16 @@ public struct AddressV6:Address {
 	}
 }
 
-public struct RangeV6:Range {
+public struct RangeV6:Range, LosslessStringConvertible {
 	public var string:String {
 		get {
 			return self.lower.string + "-" + self.upper.string
+		}
+	}
+	
+	public var description:String {
+		get {
+			return self.string
 		}
 	}
 	
@@ -184,18 +196,29 @@ public struct RangeV6:Range {
 
 }
 
-public struct NetworkV6:Network {
+public struct NetworkV6:Network, LosslessStringConvertible {
 	public var cidrString:String {
 		get {
 			return self.address.string + "/" + String(prefix)
 		}
 	}
+	
+	public var description:String {
+		get {
+			return self.cidrString
+		}
+	}
+	
 	public let address:AddressV6
 	public let netmask:AddressV6
 	public let prefix:UInt8
 	
 	public let range:RangeV6
 
+	public init?(_ description:String) {
+		self.init(cidr:description)
+	}
+	
 	public init?(cidr cidrV6:String) {
 		let cidrSplit = cidrV6.split(separator:"/").compactMap { String($0) }
 		guard cidrSplit.count == 2 else {
@@ -768,5 +791,20 @@ public struct NetworkV6:Network {
 		} else {
 			return true
 		}
+	}
+}
+
+extension AddressV6:Codable {
+	public init(from decoder:Decoder) throws {
+		let singleValThing = try decoder.singleValueContainer()
+		guard let asSelf = Self.init(try singleValThing.decode(String.self)) else {
+			throw DecodingError.typeMismatch(AddressV6.self, DecodingError.Context(codingPath:decoder.codingPath, debugDescription: "AddressV6 couldn't be initialized from the underlying raw String value"))
+		}
+		self = asSelf
+	}
+	
+	public func encode(to encoder: Encoder) throws {
+		var singleValThing = encoder.singleValueContainer()
+		try singleValThing.encode(self.string)
 	}
 }
