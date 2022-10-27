@@ -406,3 +406,48 @@ public struct NetworkV4:Network, LosslessStringConvertible {
 		}
 	}
 }
+
+extension AddressV4:Codable {
+	public init(from decoder:Decoder) throws {
+		let singleValThing = try decoder.singleValueContainer()
+		guard let asSelf = Self.init(try singleValThing.decode(String.self)) else {
+			throw DecodingError.typeMismatch(AddressV4.self, DecodingError.Context(codingPath:decoder.codingPath, debugDescription: "AddressV4 couldn't be initialized from the underlying raw String value"))
+		}
+		self = asSelf
+	}
+	
+	public func encode(to encoder: Encoder) throws {
+		var singleValThing = encoder.singleValueContainer()
+		try singleValThing.encode(self.string)
+	}
+}
+
+extension RangeV4:Codable {
+	public init(from decoder:Decoder) throws {
+		let singleValThing = try decoder.singleValueContainer()
+		guard let asSelf = Self.init(try singleValThing.decode(String.self)) else {
+			throw DecodingError.typeMismatch(RangeV4.self, DecodingError.Context(codingPath:decoder.codingPath, debugDescription: "RangeV4 couldn't be initialized from the underlying raw String value"))
+		}
+		self = asSelf
+	}
+	
+	public func encode(to encoder: Encoder) throws {
+		var singleValThing = encoder.singleValueContainer()
+		try singleValThing.encode(self.string)
+	}
+}
+
+extension NetworkV4:Codable {
+	public init(from decoder:Decoder) throws {
+		let singleValThing = try decoder.singleValueContainer()
+		guard let asSelf = Self.init(cidr:try singleValThing.decode(String.self)) else {
+			throw DecodingError.typeMismatch(NetworkV4.self, DecodingError.Context(codingPath:decoder.codingPath, debugDescription: "NetworkV4 couldn't be initialized from the underlying raw String value"))
+		}
+		self = asSelf
+	}
+	
+	public func encode(to encoder: Encoder) throws {
+		var singleValThing = encoder.singleValueContainer()
+		try singleValThing.encode(self.cidrString)
+	}
+}

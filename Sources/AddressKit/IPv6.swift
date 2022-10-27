@@ -808,3 +808,33 @@ extension AddressV6:Codable {
 		try singleValThing.encode(self.string)
 	}
 }
+
+extension RangeV6:Codable {
+	public init(from decoder:Decoder) throws {
+		let singleValThing = try decoder.singleValueContainer()
+		guard let asSelf = Self.init(try singleValThing.decode(String.self)) else {
+			throw DecodingError.typeMismatch(RangeV6.self, DecodingError.Context(codingPath:decoder.codingPath, debugDescription: "RangeV6 couldn't be initialized from the underlying raw String value"))
+		}
+		self = asSelf
+	}
+	
+	public func encode(to encoder: Encoder) throws {
+		var singleValThing = encoder.singleValueContainer()
+		try singleValThing.encode(self.string)
+	}
+}
+
+extension NetworkV6:Codable {
+	public init(from decoder:Decoder) throws {
+		let singleValThing = try decoder.singleValueContainer()
+		guard let asSelf = Self.init(cidr:try singleValThing.decode(String.self)) else {
+			throw DecodingError.typeMismatch(NetworkV6.self, DecodingError.Context(codingPath:decoder.codingPath, debugDescription: "NetworkV6 couldn't be initialized from the underlying raw String value"))
+		}
+		self = asSelf
+	}
+	
+	public func encode(to encoder: Encoder) throws {
+		var singleValThing = encoder.singleValueContainer()
+		try singleValThing.encode(self.cidrString)
+	}
+}
